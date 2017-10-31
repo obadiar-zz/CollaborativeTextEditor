@@ -2,3 +2,4 @@ node_modules
 build/*
 !build/index.*
 env.sh
+package-lock.json

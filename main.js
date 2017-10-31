@@ -13,9 +13,9 @@ const DEV_MODE = process.argv.includes('--dev');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
+  mainWindow = new BrowserWindow({ width: 1300, height: 731 })
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -26,7 +26,7 @@ function createWindow () {
 
   // Open the DevTools.
   if (DEV_MODE) {
-      mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
   }
 
   // Emitted when the window is closed.

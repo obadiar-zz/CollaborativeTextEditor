@@ -1,0 +1,129 @@
+body {
+	background: url("./background.jpg");
+	background-color: black;
+	background-repeat: no-repeat;
+}
+
+#app {
+	display: flex;
+	flex-direction: column;
+}
+
+h1 {
+	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	letter-spacing: 10px;
+	color: #1376ad;
+	font-size: 44px;
+	text-align: center;
+}
+
+button{
+	cursor: pointer;
+}
+
+#editor-container {
+	flex: 1;
+	align-self: center;
+	display: flex;
+	flex-direction: column;
+	width: 80%;
+	position: relative;
+}
+
+#editor-toolbar {
+	flex: 5;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+}
+
+.toolbar-button {
+	width: 34px;
+	height: 28px;
+	margin: 3px;
+	border: 0;
+	background: #1376ad;
+	color: white;
+	font-size: 14px;
+	text-align: center;
+	vertical-align: center;
+	border-radius: 4px;
+}
+
+#font-size-select {
+	width: 88px;
+}
+
+#font-color-select {
+	width: 76px;
+}
+
+#bold-button{
+	font-weight: 900;
+}
+#italic-button{
+	font-style: italic;
+}
+#underline-button{
+	text-decoration: underline;
+}
+#code-button{
+	font-family: 'Times New Roman', Times, serif;
+}
+
+.DraftEditor-root {
+	flex: 1;
+	background:#1376ad;
+	color: white;
+	border-radius: 6px;
+	margin: 10px 0px;
+	height: 200px;
+	max-height: 200px;
+	margin: 10px 0px;
+	overflow: auto;
+	cursor: text;
+	padding: 6px 10px;
+	font-size: 18px;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+#editor-bottom-bar{
+	flex: 2;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+#editor-bottom-bar button{
+	background: #1376ad;
+	color: white;
+	font-size: 13px;
+	min-width: 80px;
+	height: 40px;
+	border: 1px solid black;
+	white-space: nowrap;
+	margin-left: 1%;
+}
+
+.block-align-right{
+	text-align: right;
+}
+
+.block-align-center{
+	text-align: center;
+}
+
+.block-align-left{
+	text-align: left;
+}
+
+#document-id{
+	border: 1px solid #bbb;
+	border-radius: 6px;
+	padding: 10px;
+	color: white;
+}
+
+.highlighted{
+    box-shadow: 1px 1px 2px black, 0 0 25px rgb(0, 255, 255), 0 0 5px rgb(0, 205, 255);
+}

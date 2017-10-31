@@ -1,11 +1,13 @@
 const express = require('express')
 const app = express()
 
+app.use(express.static('public'))
+
 // Example route
-app.get('/', function (req, res) {
-  res.send('Hello World!')
+app.get('/', (req, res) => {
+  res('Express server is running..')
 })
 
-app.listen(3000, function () {
-  console.log('Backend server for Electron App running on port 3000!')
+app.listen(process.env.PORT, () => {
+  console.log(`Backend server for Electron App running on port ${process.env.PORT}!`)
 })
