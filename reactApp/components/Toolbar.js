@@ -76,7 +76,9 @@ class Toolbar extends React.Component {
 				<button className={"toolbar-button " + (() => this.props.isHighlightedFn('right'))()} id="align-right-button" onClick={this._onAlignRight.bind(this)}>
 					<img src="http:localhost:3000/icons/align-right.png" alt="" />
 				</button>
-
+				<div id="document-id-container">
+					<div id="document-id"><span id="document-id-label">Shareable ID</span><span id="document-id-text">{this.props.documentID}</span></div>
+				</div>
 			</div>
 		)
 	}

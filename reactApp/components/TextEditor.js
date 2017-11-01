@@ -1,7 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Editor, EditorState, RichUtils } from 'draft-js';
+import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw } from 'draft-js';
 import randomize from 'randomatic';
+import {
+	Link
+} from 'react-router-dom'
+import axios from 'axios';
 
 import Toolbar from './Toolbar'
 
@@ -54,9 +58,14 @@ const myBlockStyleFn = (contentBlock) => {
 
 class TextEditor extends React.Component {
 	constructor(props) {
-		console.log(window.location.pathname)
 		super(props);
-		this.state = { editorState: EditorState.createEmpty(), id: randomize('Aa0', 16) };
+		this.state = {
+			// editorState: EditorState.createEmpty(),
+			editorState: props.location.state ? EditorState.createWithContent(convertFromRaw(JSON.parse(props.location.state.content))) : EditorState.createEmpty(),
+			title: props.location.state  ? props.location.state.title : '',
+			id: this.props.location.pathname.split('/')[2],
+			saved: false
+		};
 		this.focus = () => this.editor.focus();
 		this.onChange = (editorState) => this.setState({ editorState });
 	}
@@ -69,6 +78,12 @@ class TextEditor extends React.Component {
 		return this.state.editorState.getCurrentInlineStyle().has(button) ? 'highlighted' : ''
 	}
 
+	handleTitleChange(e){
+		this.setState({
+			title: e.target.value
+		})
+	}
+
 	handleKeyCommand(command, editorState) {
 		const newState = RichUtils.handleKeyCommand(editorState, command);
 		if (newState) {
@@ -78,13 +93,38 @@ class TextEditor extends React.Component {
 		return 'not-handled';
 	}
 
+	handleSave() {
+		axios.post('http://localhost:3000/documents/save', {
+			ID: this.state.id,
+			title: this.state.title,
+			content: JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()))
+		})
+			.then(resp => {
+				console.log(resp.data);
+				this.setState({
+					saved: true
+				})
+				setTimeout(() =>
+					this.setState({
+						saved: false
+					}), 2000)
+			})
+			.catch(error => {
+				console.log(error);
+			})
+	}
+
 	render() {
 		return (
 			<div id='editor-container'>
 				<h1>
 					TEXT EDITOR
 				</h1>
-				<Toolbar editorState={this.state.editorState} onChangeFn={this.onChange} isHighlightedFn={(button) => (this.isHighlighted(button))} />
+				<div id="document-title">
+					<span id="title-label">Title</span>
+					<input type="text" id="title-input" onChange={this.handleTitleChange.bind(this)} value={this.state.title}/>
+				</div>
+				<Toolbar editorState={this.state.editorState} documentID={this.state.id} onChangeFn={this.onChange} isHighlightedFn={(button) => (this.isHighlighted(button))} />
 				<div onClick={this.focus}>
 					<Editor
 						customStyleMap={styleMap}
@@ -95,9 +135,11 @@ class TextEditor extends React.Component {
 						ref={(ref) => this.editor = ref} />
 				</div>
 				<div id="editor-bottom-bar">
-					<div id="document-id"><span id="document-id-label">Shareable ID</span><span id="document-id-text">{this.state.id}</span></div>
+					<div id="save-message">
+						{this.state.saved ? <span>Changes Saved Successfully!</span> : <Link to="/portal"><button className="bottom-button">Go Back</button></Link>}
+					</div>
 					<button className="bottom-button" onClick={this.printContent.bind(this)}>Log To Console</button>
-					<button className="bottom-button">Save</button>
+					<button className="bottom-button" onClick={this.handleSave.bind(this)}>Save</button>
 				</div>
 			</div>
 		);
