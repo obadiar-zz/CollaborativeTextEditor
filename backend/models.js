@@ -23,6 +23,10 @@ var documentSchema = Schema({
 		required: true,
 		unique: true
 	},
+	owner: {
+		type: Schema.Types.ObjectId,
+		ref: 'User'
+	},
 	title: {
 		type: String,
 		required: true,
@@ -31,13 +35,14 @@ var documentSchema = Schema({
 	content: {
 		type: String
 	},
+	passwordProtected: Boolean,
 	password: {
 		type: String
 	},
-	author: {
+	collaborators: [{
 		type: Schema.Types.ObjectId,
 		ref: 'User'
-	}
+	}]
 });
 
 var User = mongoose.model('User', userSchema);

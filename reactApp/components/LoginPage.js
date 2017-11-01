@@ -16,20 +16,20 @@ class LoginForm extends React.Component {
 	}
 
 	//FORCE LOGIN FOR DEV PURPOSES
-	componentDidMount(){
-		axios.post('http://localhost:3000/login', {
-			username: '1',
-			password: '1'
-		})
-		.then(resp => {
-				console.log(resp.data.message);
-				if (resp.status === 200) {
-					this.setState({
-						loggedIn: true
-					})
-				}
-			})
-	}
+	// componentDidMount(){
+	// 	axios.post('http://localhost:3000/login', {
+	// 		username: '1',
+	// 		password: '1'
+	// 	})
+	// 	.then(resp => {
+	// 			console.log(resp.data.message);
+	// 			if (resp.status === 200) {
+	// 				this.setState({
+	// 					loggedIn: true
+	// 				})
+	// 			}
+	// 		})
+	// }
 
 	handleUsernameChange(event) {
 		this.setState({ username: event.target.value });
@@ -47,40 +47,35 @@ class LoginForm extends React.Component {
 			.then(resp => {
 				console.log(resp.data.message);
 				if (resp.status === 200) {
-					this.setState({
-						loggedIn: true
-					})
+					this.props.history.push('/portal')
 				}
 			})
 			.catch(error => {
-				console.log('Error logging in:', error.message)
+				console.log('Error logging in:', error.response.data.message)
 			})
 		event.preventDefault();
 	}
 
 	render() {
-		if (this.state.loggedIn)
-			return <Redirect to="/portal" />
-		else
-			return (
-				<div id="login-page">
-					<h1>
-						Login
+		return (
+			<div id="login-page">
+				<h1>
+					Login
 				</h1>
-					<form id="login-form">
-						<label>Username</label>
-						<FormControl id="username-input" type="text" value={this.state.username} onChange={this.handleUsernameChange} />
-						<label>Password</label>
-						<FormControl id="password-input" type="password" value={this.state.password} onChange={this.handlePasswordChange} />
-						<div id="form-buttons-bar">
-							<Button bsStyle="primary" onClick={this.handleSubmit}>
-								Submit
-						</Button>
-						</div>
-					</form>
-					<span>No account? <Link to="/register">Register</Link></span>
-				</div>
-			);
+				<form id="login-form">
+					<label>Username</label>
+					<FormControl id="username-input" type="text" value={this.state.username} onChange={this.handleUsernameChange} />
+					<label>Password</label>
+					<FormControl id="password-input" type="password" value={this.state.password} onChange={this.handlePasswordChange} />
+					<div id="form-buttons-bar">
+						<button className="bottom-button" onClick={this.handleSubmit}>
+							Submit
+						</button>
+					</div>
+				</form>
+				<span>Don't have an account? <Link to="/register">Register</Link></span>
+			</div>
+		);
 	}
 }
 

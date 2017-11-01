@@ -16,8 +16,8 @@ router.use('/', function (req, res, next) {
 });
 
 router.get('/documents', (req, res, next) => {
-	Document.find({}, (error, documents) => {
-		if (error){
+	Document.find({ collaborators: req.user._id }, (error, documents) => {
+		if (error) {
 			res.status(400).send('Error: ' + error);
 		} else {
 			res.status(200).json({
@@ -28,18 +28,82 @@ router.get('/documents', (req, res, next) => {
 });
 
 router.post('/documents/save', (req, res, next) => {
-	console.log(req.body.content)
-	Document.update({ ID: req.body.ID, author: req.user._id }, {
-		title: req.body.title,
-		content: req.body.content,
-	}, { upsert: true }, (error) => {
+	Document.findOne({ ID: req.body.ID }, (error, document) => {
 		if (error) {
 			res.status(400).send('Error: ' + error);
 			console.log('Error:', error);
+		} else if (!document) {
+			let newDocument = new Document({
+				ID: req.body.ID,
+				owner: req.user._id,
+				title: req.body.title,
+				content: req.body.content,
+				collaborators: [req.user._id],
+				passwordProtected: req.body.password ? true : false,
+			});
+			if (newDocument.passWordProtected) {
+				newDocument.password = req.body.password
+			}
+			newDocument.save((error => {
+				if (error) {
+					res.status(400).send('Error: ' + error);
+					console.log('Error:', error);
+				} else {
+					res.status(200).send('New document saved successfully!');
+				}
+			}));
 		} else {
-			res.status(200).send('Document saved successfully!');
+			document.title = req.body.title;
+			document.content = req.body.content;
+			if (req.body.password) {
+				document.passwordProtected = true;
+				document.password = req.body.password
+			} else {
+				document.passwordProtected = false;
+				document.password = undefined;
+			}
+			document.save((error => {
+				if (error) {
+					res.status(400).send('Error: ' + error);
+					console.log('Error:', error);
+				} else {
+					res.status(200).send('Changes saved successfully!');
+				}
+			}));
 		}
 	})
+});
+
+router.post('/documents/add', (req, res, next) => {
+	if (!req.body.ID.match(/^[a-zA-Z0-9]{16}$/)) {
+		res.status(400).json({
+			success: false,
+			message: 'Invalid ID format.'
+		});
+	} else {
+		Document.findOneAndUpdate({ ID: req.body.ID }, { "$push": { collaborators: req.user._id } }, (error, document) => {
+			if (error) {
+				res.status(400).json({
+					success: false,
+					message: error
+				});
+			} else if (document && document.collaborators.indexOf(req.user._id) !== -1) {
+				res.status(400).json({
+					success: false,
+					message: 'This document is already in the list.'
+				});
+			} else if (!document) {
+				res.status(400).json({
+					success: false,
+					message: 'This document does not exist.'
+				});
+			} else {
+				res.status(200).json({
+					document
+				})
+			}
+		})
+	}
 });
 
 module.exports = router;
