@@ -1,5 +1,19 @@
 /* MARK: General CSS */
 
+@font-face {
+    font-family: newFont1;
+	src: url('http://localhost:3000/fonts/coolvetica.ttf');
+}
+
+@font-face {
+    font-family: newFont2;
+	src: url('http://localhost:3000/fonts/airplanes.ttf');
+}
+
+input, button, textarea, Button :focus {
+	outline: none;
+}
+
 body {
 	background: url("./background.jpg");
 	background-color: black;
@@ -14,11 +28,18 @@ body {
 }
 
 h1 {
-	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-	letter-spacing: 10px;
+	font-family: newFont2;
 	color: #1376ad;
-	font-size: 44px;
+	font-size: 50px;
+	font-weight: 600;
 	text-align: center;
+	margin: 40px auto;
+}
+
+h2{
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	text-align: center;
+	border-bottom: none;
 }
 
 a, a:hover, button{
@@ -29,8 +50,14 @@ a, a:hover, button{
 input{
 	background: #1376ad;
 	color: white;
+	-webkit-user-select: none;
+	user-select: none;
+	outline: none;
 }
 
+.blue{
+	background: #1376ad;
+}
 
 /* MARK: Login and Registration CSS */
 
@@ -45,13 +72,14 @@ input{
 	border: 2px solid white;
 	border-radius: 5px;
 	padding: 20px;
+	margin-bottom: 20px;
 }
 
 #login-page span, #register-page span{
 	text-align: center;
 }
 
-#login-page *, #register-page *{
+#login-page form *, #register-page form *{
 	margin-top: 10px;
 }
 
@@ -74,22 +102,61 @@ input{
 	display: flex;
 	flex-direction: column;
 	width: 80%;
-	position: relative;
 }
 
 #documents-container{
-	border: 2px solid white;
+	border: 3px solid white;
 	border-radius: 5px;
 	margin-bottom: 10px;
-	padding: 20px 5px;
+	padding: 20px;
+	height: 70vh;
+	overflow-y: scroll;
 }
 
-#documents-container ul{
-	padding-left: 40px;
-}
-
-#documents-container li{
+#empty-message{
+	width: 100%;
+	text-align: center;
 	font-size: 20px;
+}
+
+.document-li{
+	font-size: 20px;
+	letter-spacing: 1px;
+	height: 60px;
+	opacity: 0.9;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+	margin-bottom: 1%;
+	margin-top: 1%;
+	padding: 5px 12px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.document-li:hover{
+	box-shadow: 0 0 25px #003752;
+	cursor: pointer;
+	opacity: 1.0;
+}
+
+.document-icon{
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.document-icon img{
+	height: 32px;
+	width: 32px;
+}
+
+.document-li span{
+	flex: 9;
+	padding-left: 6px;
+	color: white;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 /* MARK: TextEditor CSS */
@@ -102,8 +169,9 @@ input{
 	flex: 1;
 	color: #1376ad;
 	letter-spacing: 2px;
-	font-family: Verdana, Geneva, Tahoma, sans-serif;
-	font-size: 26px;
+	font-family: newFont1;
+	font-size: 30px;
+	text-align: center;
 }
 
 #title-input{
@@ -191,16 +259,16 @@ input{
 	color: white;
 	letter-spacing: 1px;
 	font-weight: 900;
-	font-size: 14px;
+	font-size: 18px;
 }
 
 .bottom-button{
 	background: #1376ad;
+	min-width: 160px;
 	color: white;
-	font-size: 13px;
-	min-width: 80px;
+	font-size: 14px;
 	height: 40px;
-	border: 1px solid black;
+	border: 0;
 	border-radius: 6px;
 	white-space: nowrap;
 	margin-left: 10px;
@@ -244,4 +312,75 @@ input{
 #document-id-text{
 	padding: 4px 5px 4px 10px;
 	border-radius: 6px 0 0 6px;
+}
+
+/* MARK: MODAL CSS */
+
+ .modal-dialog {
+	position: absolute;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%) !important;
+}
+
+.modal-content{
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+}
+
+.modal-footer{
+	background: transparent;
+	margin-top: 100px;
+}
+
+#modal{
+	background: rgba(0, 0, 0, 0.9);
+}
+
+
+#modal-body{
+	padding: 0;
+	height: 80px;
+}
+
+#modal-input{
+	border: 0;
+	height: 100%;
+	width: 100%;
+	padding: 0 20px;
+	font-size: 40px;
+	font-family: monospace;
+}
+
+#modal-footer{
+	margin-top: 14px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.modal-button{
+	width: 20%;
+	margin-left: 3%;
+}
+
+/* MARK: Logout button CSS */
+
+#logout{
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	background: #000;
+	width: 120px;
+	color: white;
+	font-size: 14px;
+	height: 30px;
+	border: 0;
+	opacity: 0.2;
+}
+
+#logout:hover{
+	background: red;
+	box-shadow: 0 0 35px red, 0 0 35px  red;
+	opacity: 1.0;
 }

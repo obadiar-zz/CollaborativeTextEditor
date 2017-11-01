@@ -31,40 +31,35 @@ class RegistrationForm extends React.Component {
 			.then(resp => {
 				console.log(resp.data.message);
 				if (resp.status === 200) {
-					this.setState({
-						regisered: true
-					})
+					this.props.history.push('/login')
 				}
 			})
 			.catch(error => {
-				console.log('Error registering:', error)
+				console.log('Error registering:', error.response.data.message)
 			})
 		event.preventDefault();
 	}
 
 	render() {
-		if (this.state.regisered)
-			return <Redirect to="/login" />
-		else
-			return (
-				<div id="register-page">
-					<h1>
-						Register
+		return (
+			<div id="register-page">
+				<h1>
+					Register
 				</h1>
-					<form id="register-form">
-						<label>Username</label>
-						<FormControl id="username-input" type="text" value={this.state.username} onChange={this.handleUsernameChange} />
-						<label>Password</label>
-						<FormControl id="password-input" type="password" value={this.state.password} onChange={this.handlePasswordChange} />
-						<div id="form-buttons-bar">
-							<Button bsStyle="primary" onClick={this.handleSubmit}>
-								Submit
-						</Button>
-						</div>
-					</form>
-					<span>Already have an account? <Link to="/">Login</Link></span>
-				</div>
-			);
+				<form id="register-form">
+					<label>Username</label>
+					<FormControl id="username-input" type="text" value={this.state.username} onChange={this.handleUsernameChange} />
+					<label>Password</label>
+					<FormControl id="password-input" type="password" value={this.state.password} onChange={this.handlePasswordChange} />
+					<div id="form-buttons-bar">
+						<button className="bottom-button" onClick={this.handleSubmit}>
+							Submit
+						</button>
+					</div>
+				</form>
+				<span>Already have an account? <Link to="/">Login</Link></span>
+			</div>
+		);
 	}
 }
 

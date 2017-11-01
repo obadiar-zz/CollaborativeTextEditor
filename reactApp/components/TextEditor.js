@@ -2,12 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw } from 'draft-js';
 import randomize from 'randomatic';
-import {
-	Link
-} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import axios from 'axios';
 
+import InputModal from './InputModal'
 import Toolbar from './Toolbar'
+import Logout from './Logout'
 
 const styleMap = {
 	BLACK: {
@@ -62,9 +62,12 @@ class TextEditor extends React.Component {
 		this.state = {
 			// editorState: EditorState.createEmpty(),
 			editorState: props.location.state ? EditorState.createWithContent(convertFromRaw(JSON.parse(props.location.state.content))) : EditorState.createEmpty(),
-			title: props.location.state  ? props.location.state.title : '',
-			id: this.props.location.pathname.split('/')[2],
-			saved: false
+			title: props.location.state ? props.location.state.title : '',
+			id: props.location.pathname.split('/')[2],
+			saved: false,
+			showModal: false,
+			password: '',
+			tempPassword: props.location.state ? props.location.state.password : '',
 		};
 		this.focus = () => this.editor.focus();
 		this.onChange = (editorState) => this.setState({ editorState });
@@ -78,7 +81,25 @@ class TextEditor extends React.Component {
 		return this.state.editorState.getCurrentInlineStyle().has(button) ? 'highlighted' : ''
 	}
 
-	handleTitleChange(e){
+	savePassword(value) {
+		this.setState({
+			password: value
+		}, () => this.closeModal());
+	}
+
+	openModal() {
+		this.setState({
+			showModal: true
+		})
+	}
+
+	closeModal() {
+		this.setState({
+			showModal: false
+		})
+	}
+
+	handleTitleChange(e) {
 		this.setState({
 			title: e.target.value
 		})
@@ -97,6 +118,7 @@ class TextEditor extends React.Component {
 		axios.post('http://localhost:3000/documents/save', {
 			ID: this.state.id,
 			title: this.state.title,
+			password: this.state.password,
 			content: JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()))
 		})
 			.then(resp => {
@@ -107,7 +129,7 @@ class TextEditor extends React.Component {
 				setTimeout(() =>
 					this.setState({
 						saved: false
-					}), 2000)
+					}), 1000)
 			})
 			.catch(error => {
 				console.log(error);
@@ -117,12 +139,13 @@ class TextEditor extends React.Component {
 	render() {
 		return (
 			<div id='editor-container'>
+				<Logout logout={() => this.props.history.push('/login')} />
 				<h1>
-					TEXT EDITOR
+					Text Editor
 				</h1>
 				<div id="document-title">
 					<span id="title-label">Title</span>
-					<input type="text" id="title-input" onChange={this.handleTitleChange.bind(this)} value={this.state.title}/>
+					<input type="text" id="title-input" onChange={this.handleTitleChange.bind(this)} value={this.state.title} />
 				</div>
 				<Toolbar editorState={this.state.editorState} documentID={this.state.id} onChangeFn={this.onChange} isHighlightedFn={(button) => (this.isHighlighted(button))} />
 				<div onClick={this.focus}>
@@ -138,7 +161,9 @@ class TextEditor extends React.Component {
 					<div id="save-message">
 						{this.state.saved ? <span>Changes Saved Successfully!</span> : <Link to="/portal"><button className="bottom-button">Go Back</button></Link>}
 					</div>
-					<button className="bottom-button" onClick={this.printContent.bind(this)}>Log To Console</button>
+					<button className="bottom-button" onClick={this.openModal.bind(this)}>Password</button>
+					<InputModal showModal={this.state.showModal} value={this.state.tempPassword} title="Choose Password" type="password" save={this.savePassword.bind(this)} />
+					{/* <InputModal showModal={this.state.showModal} value="" title='Enter ID' type="text" save={this.saveID.bind(this)} /> */}
 					<button className="bottom-button" onClick={this.handleSave.bind(this)}>Save</button>
 				</div>
 			</div>
