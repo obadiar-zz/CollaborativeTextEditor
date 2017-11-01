@@ -1,7 +1,11 @@
+/* MARK: General CSS */
+
 body {
 	background: url("./background.jpg");
 	background-color: black;
 	background-repeat: no-repeat;
+	font-family: Arial, Helvetica, sans-serif;
+	color: white;
 }
 
 #app {
@@ -17,11 +21,53 @@ h1 {
 	text-align: center;
 }
 
-button{
+a, button{
 	cursor: pointer;
 }
 
-#editor-container {
+input{
+	background: #1376ad;
+	color: white;
+}
+
+
+/* MARK: Login and Registration CSS */
+
+#login-page, #register-page{
+  width: 30%;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+}
+
+#login-form, #register-form{
+	border: 2px solid white;
+	border-radius: 5px;
+	padding: 20px;
+}
+
+#login-page span, #register-page span{
+	text-align: center;
+}
+
+#login-page *, #register-page *{
+	margin-top: 10px;
+}
+
+#username-input, #password-input{
+	background: #1376ad;
+	color: white;
+}
+
+#form-buttons-bar{
+	display: flex;
+	justify-content: flex-end;
+}
+
+
+/* MARK: Document Portal CSS */
+
+#editor-container, #document-portal-container {
 	flex: 1;
 	align-self: center;
 	display: flex;
@@ -29,6 +75,23 @@ button{
 	width: 80%;
 	position: relative;
 }
+
+#documents-container{
+	border: 2px solid white;
+	border-radius: 5px;
+	margin-bottom: 10px;
+	padding: 20px 5px;
+}
+
+#documents-container ul{
+	padding-left: 40px;
+}
+
+#documents-container li{
+	font-size: 20px;
+}
+
+/* MARK: TextEditor CSS */
 
 #editor-toolbar {
 	flex: 5;
@@ -48,6 +111,10 @@ button{
 	text-align: center;
 	vertical-align: center;
 	border-radius: 4px;
+}
+
+.highlighted{
+    box-shadow: 1px 1px 2px black, 0 0 25px rgb(0, 255, 255), 0 0 5px rgb(0, 205, 255);
 }
 
 #font-size-select {
@@ -94,13 +161,14 @@ button{
 	align-items: center;
 }
 
-#editor-bottom-bar button{
+.bottom-button{
 	background: #1376ad;
 	color: white;
 	font-size: 13px;
 	min-width: 80px;
 	height: 40px;
 	border: 1px solid black;
+	border-radius: 6px;
 	white-space: nowrap;
 	margin-left: 1%;
 }
@@ -120,10 +188,17 @@ button{
 #document-id{
 	border: 1px solid #bbb;
 	border-radius: 6px;
-	padding: 10px;
+	padding: 10px 5px 10px 0;
 	color: white;
 }
 
-.highlighted{
-    box-shadow: 1px 1px 2px black, 0 0 25px rgb(0, 255, 255), 0 0 5px rgb(0, 205, 255);
+#document-id-label{
+	background: #022e46;
+	padding: 12px 5px;
+	border-radius: 6px 0 0 6px;
+}
+
+#document-id-text{
+	padding: 10px 5px 10px 10px;
+	border-radius: 6px 0 0 6px;
 }
