@@ -15,7 +15,7 @@ let mainWindow
 
 function createWindow() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({ width: 1300, height: 731 })
+  mainWindow = new BrowserWindow({ width: 1300, height: 732 })
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -36,7 +36,13 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null
   })
+
+  mainWindow.on('uncaughtException', function (err) {
+    console.log(err);
+  })
 }
+
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
