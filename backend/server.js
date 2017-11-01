@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var session = require('express-session');
 
 const routes = require('./routes')
 const auth = require('./auth');
@@ -22,6 +23,10 @@ app.use(bodyParser.urlencoded({
 
 
 app.use(express.static('public'))
+
+app.use(session({
+  secret: 'text-editor'
+}));
 
 passport.serializeUser(function (user, done) {
   done(null, user._id);

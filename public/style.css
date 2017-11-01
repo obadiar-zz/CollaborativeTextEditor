@@ -21,8 +21,9 @@ h1 {
 	text-align: center;
 }
 
-a, button{
+a, a:hover, button{
 	cursor: pointer;
+	text-decoration: none;
 }
 
 input{
@@ -92,6 +93,27 @@ input{
 }
 
 /* MARK: TextEditor CSS */
+#document-title{
+	display: flex;
+	margin-bottom: 10px;
+}
+
+#title-label{
+	flex: 1;
+	color: #1376ad;
+	letter-spacing: 2px;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	font-size: 26px;
+}
+
+#title-input{
+	flex: 8;
+	border: 0;
+	border-radius: 5px;
+	padding-left: 10px;
+	font-size: 20px;
+	color: white;
+}
 
 #editor-toolbar {
 	flex: 5;
@@ -161,6 +183,17 @@ input{
 	align-items: center;
 }
 
+#save-message{
+	padding: 0 10px;
+	flex: 1;
+	text-align: center;
+	text-shadow: 2px 2px #1376ad;
+	color: white;
+	letter-spacing: 1px;
+	font-weight: 900;
+	font-size: 14px;
+}
+
 .bottom-button{
 	background: #1376ad;
 	color: white;
@@ -170,7 +203,7 @@ input{
 	border: 1px solid black;
 	border-radius: 6px;
 	white-space: nowrap;
-	margin-left: 1%;
+	margin-left: 10px;
 }
 
 .block-align-right{
@@ -185,20 +218,30 @@ input{
 	text-align: left;
 }
 
+#document-id-container{
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+	align-items: center;
+}
+
 #document-id{
-	border: 1px solid #bbb;
+	display: flex;
+	border: 2px solid #bbb;
 	border-radius: 6px;
-	padding: 10px 5px 10px 0;
+	height: 28px;
 	color: white;
+	align-items: center;
 }
 
 #document-id-label{
 	background: #022e46;
-	padding: 12px 5px;
+	padding: 2px 5px;
 	border-radius: 6px 0 0 6px;
 }
 
 #document-id-text{
-	padding: 10px 5px 10px 10px;
+	padding: 4px 5px 4px 10px;
 	border-radius: 6px 0 0 6px;
 }
