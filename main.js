@@ -19,8 +19,8 @@ function createWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
-    pathname: 'shrouded-mountain-63691.herokuapp.com/',
-    protocol: 'http:',
+    pathname: path.join(__dirname, 'build', DEV_MODE ? 'index.dev.html' : 'index.html'),
+    protocol: 'file:',
     slashes: true
   }))
 
