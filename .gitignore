@@ -3,3 +3,4 @@ build/*
 !build/index.*
 env.sh
 package-lock.json
+dist
