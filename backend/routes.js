@@ -101,7 +101,7 @@ router.post('/documents/add', (req, res, next) => {
 					success: false,
 					message: 'This document does not exist.'
 				});
-			} else if (!document.passwordProtected && !req.body.password) {
+			} else if (!document.passwordProtected) {
 				document.collaborators.push(req.user._id);
 				document.save((error) => {
 					if (!error) {
@@ -116,9 +116,30 @@ router.post('/documents/add', (req, res, next) => {
 						})
 					}
 				})
-			} else {
+			} else if (document.passwordProtected && !req.body.password) {
 				res.status(200).json({
-					success: false
+					success: false,
+					message: 'This document requires a password.'
+				})
+			} else if (document.passwordProtected && (req.body.password !== document.password)) {
+				res.status(401).json({
+					success: false,
+					message: 'Incorrect password.'
+				})
+			} else {
+				document.collaborators.push(req.user._id);
+				document.save((error) => {
+					if (!error) {
+						res.status(200).json({
+							success: true,
+							document
+						})
+					} else {
+						res.status(400).json({
+							success: false,
+							message: 'Error adding document.'
+						})
+					}
 				})
 			}
 		})

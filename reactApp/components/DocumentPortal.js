@@ -13,8 +13,10 @@ class DocumentPortal extends React.Component {
 		super(props);
 		this.state = {
 			documents: [],
-			showModal: false,
-			emptyMessage: ''
+			showIDModal: false,
+			showPasswordModal: false,
+			emptyMessage: '',
+			currentID: ''
 		}
 	}
 
@@ -35,19 +37,22 @@ class DocumentPortal extends React.Component {
 		this.getDocuments();
 	}
 
-	openModal() {
+	openIDModal() {
 		this.setState({
-			showModal: true
+			showIDModal: true
 		})
 	}
 
-	closeModal() {
+	closeIDModal() {
 		this.setState({
-			showModal: false
+			showIDModal: false
 		})
 	}
 
 	saveID(value) {
+		this.setState({
+			currentID: value
+		})
 		axios.post('http://localhost:3000/documents/add', {
 			ID: value
 		})
@@ -55,15 +60,55 @@ class DocumentPortal extends React.Component {
 				if (resp.status === 200 && resp.data.success) {
 					this.setState({
 						documents: [...this.state.documents, resp.data.document],
-						emptyMessage: ''
-					}, () => this.closeModal())
+						emptyMessage: '',
+						currentID: ''
+					}, () => this.closeIDModal())
 				} else {
-					console.log('Looks like you need a password!');
-					this.closeModal()
+					this.closeIDModal()
+					this.openPasswordModal();
 				}
 			})
 			.catch(error => {
-				console.log('Error adding document:', error.response.data.message)
+				console.log('Error adding document:', error.response.data.message);
+				this.closeIDModal()
+			})
+	}
+
+	openPasswordModal() {
+		this.setState({
+			showPasswordModal: true
+		})
+	}
+
+	closePasswordModal() {
+		this.setState({
+			showPasswordModal: false
+		})
+	}
+
+	savePassword(password) {
+		axios.post('http://localhost:3000/documents/add', {
+			ID: this.state.currentID,
+			password: password
+		})
+			.then(resp => {
+				if (resp.status === 200 && resp.data.success) {
+					this.setState({
+						documents: [...this.state.documents, resp.data.document],
+						emptyMessage: ''
+					}, () => this.closePasswordModal())
+				}
+				this.setState({
+					currentID: ''
+				})
+				this.closePasswordModal()
+			})
+			.catch(error => {
+				console.log('Error adding document:', error.response.data.message);
+				this.setState({
+					currentID: ''
+				})
+				this.closePasswordModal()
 			})
 	}
 
@@ -79,8 +124,9 @@ class DocumentPortal extends React.Component {
 					{this.state.documents.map(doc => <Document doc={doc} key={doc.ID} refreshDocuments={this.getDocuments.bind(this)} />)}
 				</div>
 				<div id="editor-bottom-bar">
-					<button className="bottom-button" onClick={this.openModal.bind(this)}>Add Document by ID</button>
-					<InputModal showModal={this.state.showModal} value="" title='Enter ID' type="text" save={this.saveID.bind(this)} closeModal={this.closeModal.bind(this)} />
+					<button className="bottom-button" onClick={this.openIDModal.bind(this)}>Add Document by ID</button>
+					<InputModal showModal={this.state.showIDModal} value="" title="ID" type="text" save={this.saveID.bind(this)} closeModal={this.closeIDModal.bind(this)} />
+					<InputModal showModal={this.state.showPasswordModal} value="" title="Password" type="password" save={this.savePassword.bind(this)} closeModal={this.closePasswordModal.bind(this)} />
 					<Link to={"/document/" + randomize('aA0', 16)}><button className="bottom-button">Create</button></Link>
 				</div>
 			</div>
