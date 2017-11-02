@@ -18,17 +18,21 @@ class DocumentPortal extends React.Component {
 		}
 	}
 
-	componentDidMount() {
-		setTimeout(this.noMessages.bind(this), 1500)
+	getDocuments() {
 		axios.get('http://localhost:3000/documents')
 			.then(resp => {
 				this.setState({
-					documents: resp.data.documents
+					documents: resp.data.documents,
+					emptyMessage: resp.data.documents.length === 0 ? 'You do not have any documents, add or create some.' : ''
 				})
 			})
 			.catch(error => {
 				console.log('Error adding document', error.response.data.message)
 			})
+	}
+
+	componentDidMount() {
+		this.getDocuments();
 	}
 
 	openModal() {
@@ -48,20 +52,18 @@ class DocumentPortal extends React.Component {
 			ID: value
 		})
 			.then(resp => {
-				this.setState({
-					documents: [...this.state.documents, resp.data.document],
-                    emptyMessage: ''
-				}, () => this.closeModal())
+				if (resp.status === 200 && resp.data.success) {
+					this.setState({
+						documents: [...this.state.documents, resp.data.document],
+						emptyMessage: ''
+					}, () => this.closeModal())
+				} else {
+					console.log('Looks like you need a password!');
+					this.closeModal()
+				}
 			})
 			.catch(error => {
 				console.log('Error adding document:', error.response.data.message)
-			})
-	}
-
-	noMessages() {
-		if (this.state.documents.length === 0)
-			this.setState({
-				emptyMessage: 'You have no documents, You can Create or Add using the buttons below.'
 			})
 	}
 
@@ -74,11 +76,11 @@ class DocumentPortal extends React.Component {
 				</h1>
 				<div id="documents-container">
 					<div id="empty-message">{this.state.emptyMessage}</div>
-					{this.state.documents.map(doc => <Document doc={doc} key={doc.ID} />)}
+					{this.state.documents.map(doc => <Document doc={doc} key={doc.ID} refreshDocuments={this.getDocuments.bind(this)} />)}
 				</div>
 				<div id="editor-bottom-bar">
 					<button className="bottom-button" onClick={this.openModal.bind(this)}>Add Document by ID</button>
-					<InputModal showModal={this.state.showModal} value="" title='Enter ID' type="text" save={this.saveID.bind(this)} />
+					<InputModal showModal={this.state.showModal} value="" title='Enter ID' type="text" save={this.saveID.bind(this)} closeModal={this.closeModal.bind(this)} />
 					<Link to={"/document/" + randomize('aA0', 16)}><button className="bottom-button">Create</button></Link>
 				</div>
 			</div>

@@ -132,7 +132,7 @@ class TextEditor extends React.Component {
 					}), 1000)
 			})
 			.catch(error => {
-				console.log(error);
+				console.log('Error saving document:', error.response.data.message);
 			})
 	}
 
@@ -162,8 +162,7 @@ class TextEditor extends React.Component {
 						{this.state.saved ? <span>Changes Saved Successfully!</span> : <Link to="/portal"><button className="bottom-button">Go Back</button></Link>}
 					</div>
 					<button className="bottom-button" onClick={this.openModal.bind(this)}>Password</button>
-					<InputModal showModal={this.state.showModal} value={this.state.tempPassword} title="Choose Password" type="password" save={this.savePassword.bind(this)} />
-					{/* <InputModal showModal={this.state.showModal} value="" title='Enter ID' type="text" save={this.saveID.bind(this)} /> */}
+					<InputModal showModal={this.state.showModal} value={this.state.tempPassword} title="Choose Password" type="password" save={this.savePassword.bind(this)} closeModal={this.closeModal.bind(this)} />
 					<button className="bottom-button" onClick={this.handleSave.bind(this)}>Save</button>
 				</div>
 			</div>

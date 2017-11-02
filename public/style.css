@@ -147,13 +147,24 @@ input{
 	align-items: center;
 }
 
+.document-delete{
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.document-delete:hover{
+	color: white;
+}
+
 .document-icon img{
 	height: 32px;
 	width: 32px;
 }
 
 .document-li span{
-	flex: 9;
+	flex: 16;
 	padding-left: 6px;
 	color: white;
 	font-family: Arial, Helvetica, sans-serif;

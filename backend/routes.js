@@ -30,8 +30,10 @@ router.get('/documents', (req, res, next) => {
 router.post('/documents/save', (req, res, next) => {
 	Document.findOne({ ID: req.body.ID }, (error, document) => {
 		if (error) {
-			res.status(400).send('Error: ' + error);
-			console.log('Error:', error);
+			res.status(400).json({
+				success: false,
+				message: error.message
+			});
 		} else if (!document) {
 			let newDocument = new Document({
 				ID: req.body.ID,
@@ -46,8 +48,10 @@ router.post('/documents/save', (req, res, next) => {
 			}
 			newDocument.save((error => {
 				if (error) {
-					res.status(400).send('Error: ' + error);
-					console.log('Error:', error);
+					res.status(400).json({
+						success: false,
+						message: error.message
+					});
 				} else {
 					res.status(200).send('New document saved successfully!');
 				}
@@ -81,11 +85,11 @@ router.post('/documents/add', (req, res, next) => {
 			message: 'Invalid ID format.'
 		});
 	} else {
-		Document.findOneAndUpdate({ ID: req.body.ID }, { "$push": { collaborators: req.user._id } }, (error, document) => {
+		Document.findOne({ ID: req.body.ID }, (error, document) => {
 			if (error) {
 				res.status(400).json({
 					success: false,
-					message: error
+					message: error.message
 				});
 			} else if (document && document.collaborators.indexOf(req.user._id) !== -1) {
 				res.status(400).json({
@@ -97,13 +101,46 @@ router.post('/documents/add', (req, res, next) => {
 					success: false,
 					message: 'This document does not exist.'
 				});
+			} else if (!document.passwordProtected && !req.body.password) {
+				document.collaborators.push(req.user._id);
+				document.save((error) => {
+					if (!error) {
+						res.status(200).json({
+							success: true,
+							document
+						})
+					} else {
+						res.status(400).json({
+							success: false,
+							message: 'Error adding document.'
+						})
+					}
+				})
 			} else {
 				res.status(200).json({
-					document
+					success: false
 				})
 			}
 		})
 	}
+});
+
+
+router.post('/documents/delete', (req, res, next) => {
+	Document.findOneAndUpdate({ ID: req.body.ID }, { "$pull": { collaborators: req.user._id } }, (error, document) => {
+		if (error) {
+			res.status(400).json({
+				success: false,
+				message: error
+			});
+		} else {
+			res.status(200).json({
+				success: true,
+				message: 'Document removed succesfully.'
+			});
+		}
+	})
+
 });
 
 module.exports = router;
