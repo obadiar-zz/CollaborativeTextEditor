@@ -7,7 +7,7 @@ class InputModal extends React.Component {
 		super(props);
 		this.state = {
 			showModal: false,
-			value: props.value ? props.value : ''
+			value: ''
 		}
 	}
 
@@ -18,8 +18,10 @@ class InputModal extends React.Component {
 	}
 
 	closeModal() {
+		this.props.closeModal();
 		this.setState({
-			showModal: false
+			showModal: false,
+			value: ''
 		})
 	}
 

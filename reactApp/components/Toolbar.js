@@ -53,7 +53,7 @@ class Toolbar extends React.Component {
 				<button className={"toolbar-button " + (() => this.props.isHighlightedFn('ITALIC'))()} id="italic-button" onClick={this._onItalicClick.bind(this)}>I</button>
 				<button className={"toolbar-button " + (() => this.props.isHighlightedFn('UNDERLINE'))()} id="underline-button" onClick={this._onUnderlineClick.bind(this)}>U</button>
 				<button className={"toolbar-button " + (() => this.props.isHighlightedFn('CODE'))()} id="code-button" onClick={this._onCodeClick.bind(this)}>C</button>
-				<select defaultValue={(() => this.props.isHighlightedFn('CODE'))()} className="toolbar-button" id="font-size-select" onChange={this._onSizeChange.bind(this)}>
+				<select defaultValue={'regular'/*(() => this.props.isHighlightedFn('CODE'))()*/} className="toolbar-button" id="font-size-select" onChange={this._onSizeChange.bind(this)}>
 					<option value="smallest">Smallest</option>
 					<option value="small">Small</option>
 					<option value="regular">Regular</option>
