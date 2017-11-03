@@ -1,10 +1,12 @@
 const express = require('express');
-const app = express()
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 const mongoose = require('mongoose');
-var bodyParser = require('body-parser');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var session = require('express-session');
+const bodyParser = require('body-parser');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
 
 const routes = require('./routes')
 const auth = require('./auth');
@@ -66,8 +68,39 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', auth(passport));
-app.use('/', routes)
+app.use('/', routes);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Backend server for Electron App running on port ${process.env.PORT}!`)
-})
+// SOCKETs
+
+var latestContent = {};
+var totalClientCount = 0;
+io.on('connection', (socket) => {
+  totalClientCount++;
+  socket.on('disconnect', () => {
+    totalClientCount--;
+  });
+
+  socket.on('DOCUMENT_OPEN', (documentID) => {
+    socket.join(documentID);
+    socket.room = documentID;
+    if (latestContent[socket.room]) {
+      socket.emit('CONTENT_UPDATE', latestContent[socket.room])
+    };
+  });
+
+  socket.on('DOCUMENT_CLOSE', (documentID) => {
+    socket.leave(documentID);
+    socket.room = undefined;
+  });
+
+  socket.on('CONTENT_UPDATE', (content) => {
+    latestContent[socket.room] = content;
+    socket.broadcast.to(socket.room).emit('CONTENT_UPDATE', content)
+  });
+});
+
+var port = process.env.PORT || 3000;
+
+http.listen(port, () => {
+  console.log(`Server started. Listening on ${port}`);
+});

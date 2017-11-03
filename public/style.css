@@ -75,6 +75,10 @@ input{
 	margin-bottom: 20px;
 }
 
+#login-form #form-buttons-bar, #register-form #form-buttons-bar{
+	justify-content: center;
+}
+
 #login-page span, #register-page span{
 	text-align: center;
 }
@@ -245,8 +249,8 @@ input{
 	color: white;
 	border-radius: 6px;
 	margin: 10px 0px;
-	height: 200px;
-	max-height: 200px;
+	min-height: 300px;
+	max-height: 50vh;
 	margin: 10px 0px;
 	overflow: auto;
 	cursor: text;
@@ -275,7 +279,7 @@ input{
 
 .bottom-button{
 	background: #1376ad;
-	min-width: 160px;
+	min-width: 140px;
 	color: white;
 	font-size: 14px;
 	height: 40px;
@@ -312,6 +316,7 @@ input{
 	height: 28px;
 	color: white;
 	align-items: center;
+	white-space: nowrap; 
 }
 
 #document-id-label{
@@ -325,37 +330,47 @@ input{
 	border-radius: 6px 0 0 6px;
 }
 
-/* MARK: MODAL CSS */
+/* MARK: Modal CSS */
 
- .modal-dialog {
+.modal-dialog {
 	position: absolute;
-	top: 40%;
 	left: 50%;
 	transform: translate(-50%, -50%) !important;
+	display: flex;
+	justify-content: center;
+}
+
+
+.modal{
+	background: rgba(0, 0, 0, 0.7);
 }
 
 .modal-content{
 	border: 0;
 	border-radius: 0;
+}
+
+/* MARK: Input Modal CSS */
+
+#input-modal .modal-dialog{
+	top: 40%;
+}
+
+#input-modal .modal-content{
 	background: transparent;
 }
 
-.modal-footer{
+#input-modal .modal-footer{
 	background: transparent;
 	margin-top: 100px;
 }
 
-#modal{
-	background: rgba(0, 0, 0, 0.9);
-}
-
-
-#modal-body{
+#input-modal-body{
 	padding: 0;
 	height: 80px;
 }
 
-#modal-input{
+#input-modal-input{
 	border: 0;
 	height: 100%;
 	width: 100%;
@@ -364,7 +379,7 @@ input{
 	font-family: monospace;
 }
 
-#modal-footer{
+#input-modal-footer{
 	margin-top: 14px;
 	display: flex;
 	justify-content: flex-end;
@@ -373,6 +388,32 @@ input{
 .modal-button{
 	width: 20%;
 	margin-left: 3%;
+}
+
+/* MARK: Error Modal CSS */
+
+#error-modal{
+	color: white;
+}
+
+#error-modal .modal-dialog{
+	top: 20%;
+}
+
+#error-modal-title{
+	font-size: 14px;
+	padding: 6px 0px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.521);
+}
+
+#error-modal .modal-body{
+	padding: 5px;
+}
+
+#error-modal .modal-content{
+	background: #fd2323;
+	padding: 4px 10px;
+	width: 70%;
 }
 
 /* MARK: Logout button CSS */

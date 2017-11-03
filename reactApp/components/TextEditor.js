@@ -4,8 +4,10 @@ import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw } from 'dr
 import randomize from 'randomatic';
 import { Link } from 'react-router-dom'
 import axios from 'axios';
+import io from 'socket.io-client';
 
 import InputModal from './InputModal'
+import ErrorModal from './ErrorModal'
 import Toolbar from './Toolbar'
 import Logout from './Logout'
 
@@ -67,15 +69,39 @@ class TextEditor extends React.Component {
 			saved: false,
 			showModal: false,
 			password: '',
-			tempPassword: props.location.state ? props.location.state.password : '',
+			tempPassword: '',
+			showErrorModal: false,
+			errorMessage: ''
 		};
 		this.focus = () => this.editor.focus();
-		this.onChange = (editorState) => this.setState({ editorState });
 	}
 
-	printContent() {
-		console.log(this.state.editorState.getCurrentContent().getPlainText())
+	componentDidMount() {
+		this.socket = io('http://localhost:3000');
+		this.socket.emit('DOCUMENT_OPEN', this.state.id);
+		this.socket.on('CONTENT_UPDATE', (data) => {
+			console.log('GOT SOMETHING!!!')
+			this.setState({
+				title: data.title,
+				editorState: EditorState.createWithContent(convertFromRaw(JSON.parse(data.content)))
+			})
+		})
 	}
+
+	componentWillUnmount() {
+		this.socket.emit('DOCUMENT_CLOSE', this.state.id);
+		this.socket.disconnect();
+	}
+
+	onChange(editorState) {
+		this.setState({
+			editorState
+		}, () => this.socket.emit('CONTENT_UPDATE', {
+			title: this.state.title,
+			content: JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()))
+		}));
+	}
+
 
 	isHighlighted(button) {
 		return this.state.editorState.getCurrentInlineStyle().has(button) ? 'highlighted' : ''
@@ -102,7 +128,10 @@ class TextEditor extends React.Component {
 	handleTitleChange(e) {
 		this.setState({
 			title: e.target.value
-		})
+		}, () => this.socket.emit('CONTENT_UPDATE', {
+			title: this.state.title,
+			content: JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()))
+		}));
 	}
 
 	handleKeyCommand(command, editorState) {
@@ -133,12 +162,29 @@ class TextEditor extends React.Component {
 			})
 			.catch(error => {
 				console.log('Error saving document:', error.response.data.message);
+				this.setState({
+					errorMessage: error.response.data.message
+				})
+				this.openErrorModal()
 			})
+	}
+
+	openErrorModal() {
+		this.setState({
+			showErrorModal: true
+		})
+	}
+
+	closeErrorModal() {
+		this.setState({
+			showErrorModal: false
+		})
 	}
 
 	render() {
 		return (
 			<div id='editor-container'>
+				<ErrorModal showModal={this.state.showErrorModal} message={this.state.errorMessage} duration={2} closeModal={this.closeErrorModal.bind(this)} />
 				<Logout logout={() => this.props.history.push('/login')} />
 				<h1>
 					Text Editor
@@ -147,14 +193,14 @@ class TextEditor extends React.Component {
 					<span id="title-label">Title</span>
 					<input type="text" id="title-input" onChange={this.handleTitleChange.bind(this)} value={this.state.title} />
 				</div>
-				<Toolbar editorState={this.state.editorState} documentID={this.state.id} onChangeFn={this.onChange} isHighlightedFn={(button) => (this.isHighlighted(button))} />
+				<Toolbar editorState={this.state.editorState} documentID={this.state.id} onChangeFn={this.onChange.bind(this)} isHighlightedFn={(button) => (this.isHighlighted(button))} />
 				<div onClick={this.focus}>
 					<Editor
 						customStyleMap={styleMap}
 						blockStyleFn={myBlockStyleFn}
 						editorState={this.state.editorState}
 						handleKeyCommand={this.handleKeyCommand}
-						onChange={this.onChange}
+						onChange={this.onChange.bind(this)}
 						ref={(ref) => this.editor = ref} />
 				</div>
 				<div id="editor-bottom-bar">

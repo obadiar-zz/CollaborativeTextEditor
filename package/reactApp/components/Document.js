@@ -7,13 +7,13 @@ export default class Document extends Component {
 		super(props);
 	}
 
-	delete(e){
+	delete(e) {
 		e.preventDefault();
 		axios.post('http://localhost:3000/documents/delete', {
 			ID: this.props.doc.ID
 		})
 			.then(resp => {
-				if (resp.status === 200){
+				if (resp.status === 200) {
 					console.log(resp.data.message);
 					this.props.refreshDocuments();
 				}
@@ -27,7 +27,7 @@ export default class Document extends Component {
 		const doc = this.props.doc;
 		return (
 			<div>
-				<Link to={{ pathname: '/document/' + doc.ID, state: { title: doc.title, content: doc.content} }}>
+				<Link to={{ pathname: '/document/' + doc.ID, state: { title: doc.title, content: doc.content } }}>
 					<div className="document-li blue" >
 						<div className="document-icon">
 							<img src="http:/localhost:3000/icons/document.png" />

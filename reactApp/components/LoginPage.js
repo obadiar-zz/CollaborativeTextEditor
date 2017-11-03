@@ -5,31 +5,29 @@ import { Button, Label, FormControl, FieldGroup, ButtonToolbar } from 'react-boo
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router';
 
+import ErrorModal from './ErrorModal'
+
 class LoginForm extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { username: '', password: '', loggedIn: false };
+		this.state = { username: '', password: '', showErrorModal: false, errorMessage: '' };
 
 		this.handleUsernameChange = this.handleUsernameChange.bind(this);
 		this.handlePasswordChange = this.handlePasswordChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 
-	//FORCE LOGIN FOR DEV PURPOSES
-	// componentDidMount(){
-	// 	axios.post('http://localhost:3000/login', {
-	// 		username: '1',
-	// 		password: '1'
-	// 	})
-	// 	.then(resp => {
-	// 			console.log(resp.data.message);
-	// 			if (resp.status === 200) {
-	// 				this.setState({
-	// 					loggedIn: true
-	// 				})
-	// 			}
-	// 		})
-	// }
+	openErrorModal() {
+		this.setState({
+			showErrorModal: true
+		})
+	}
+
+	closeErrorModal() {
+		this.setState({
+			showErrorModal: false
+		})
+	}
 
 	handleUsernameChange(event) {
 		this.setState({ username: event.target.value });
@@ -51,14 +49,19 @@ class LoginForm extends React.Component {
 				}
 			})
 			.catch(error => {
-				console.log('Error logging in:', error.response.data.message)
+				console.log('Error logging in:', error)
+				this.setState({
+					errorMessage: error.response.data.message
+				})
+				this.openErrorModal();
 			})
 		event.preventDefault();
 	}
 
 	render() {
 		return (
-			<div id="login-page">
+			< div id="login-page" >
+				<ErrorModal showModal={this.state.showErrorModal} message={this.state.errorMessage} duration={1.5} closeModal={this.closeErrorModal.bind(this)} />
 				<h1>
 					Login
 				</h1>
@@ -74,7 +77,7 @@ class LoginForm extends React.Component {
 					</div>
 				</form>
 				<span>Don't have an account? <Link to="/register">Register</Link></span>
-			</div>
+			</div >
 		);
 	}
 }
