@@ -25,7 +25,7 @@ class DocumentPortal extends React.Component {
 	}
 
 	getDocuments() {
-		axios.get('http://localhost:3000/documents')
+		axios.get(process.env.BACKEND + '/documents')
 			.then(resp => {
 				this.setState({
 					documents: resp.data.documents,
@@ -61,13 +61,13 @@ class DocumentPortal extends React.Component {
 		this.setState({
 			currentID: value
 		})
-		axios.post('http://localhost:3000/documents/add', {
+		axios.post(process.env.BACKEND + '/documents/add', {
 			ID: value
 		})
 			.then(resp => {
 				if (resp.status === 200 && resp.data.success) {
+					this.getDocuments();
 					this.setState({
-						documents: [...this.state.documents, resp.data.document],
 						emptyMessage: '',
 						currentID: ''
 					}, () => this.closeIDModal())
@@ -99,14 +99,14 @@ class DocumentPortal extends React.Component {
 	}
 
 	savePassword(password) {
-		axios.post('http://localhost:3000/documents/add', {
+		axios.post(process.env.BACKEND + '/documents/add', {
 			ID: this.state.currentID,
 			password: password
 		})
 			.then(resp => {
 				if (resp.status === 200 && resp.data.success) {
+					this.getDocuments();
 					this.setState({
-						documents: [...this.state.documents, resp.data.document],
 						emptyMessage: ''
 					}, () => this.closePasswordModal())
 				}

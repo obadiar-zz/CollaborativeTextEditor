@@ -26,7 +26,7 @@ class RegistrationForm extends React.Component {
 	}
 
 	handleSubmit(event) {
-		axios.post('http://localhost:3000/register', {
+		axios.post(process.env.BACKEND + '/register', {
 			username: this.state.username,
 			password: this.state.password
 		})

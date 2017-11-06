@@ -44,7 +44,7 @@ class InputModal extends React.Component {
 			<Modal id="input-modal" show={this.state.showModal} onHide={this.closeModal.bind(this)}>
 				<Modal.Body id="input-modal-body">
 					<h2>{this.props.title}</h2>
-					<input id="input-modal-input" className="blue" type={this.props.type} onChange={this.handleChange.bind(this)} value={this.state.value} autoFocus maxLength={this.props.type === "text" ? "16" : ""} />
+					<input id="input-modal-input" className="blue" type={this.props.type} onChange={this.handleChange.bind(this)} value={this.state.value} autoFocus/>
 					<div id="input-modal-footer">
 						{this.state.value.length !== 0 ? <Button className="bottom-button" onClick={this.handleSave.bind(this)}>Save</Button> : ''}
 					</div>

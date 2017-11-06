@@ -11,13 +11,13 @@ export default class Logout extends Component {
 	}
 
 	logout() {
-		axios.get('http://localhost:3000/logout')
+		axios.get(process.env.BACKEND + '/logout')
 			.then(resp => {
 				console.log(resp.data.message)
 				this.props.logout()
 			})
 			.catch(error => {
-				console.log('Error logging out:', error.response.data.message)
+				console.log('Error logging out:', error)
 			})
 	}
 

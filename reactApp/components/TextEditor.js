@@ -66,21 +66,21 @@ class TextEditor extends React.Component {
 			editorState: props.location.state ? EditorState.createWithContent(convertFromRaw(JSON.parse(props.location.state.content))) : EditorState.createEmpty(),
 			title: props.location.state ? props.location.state.title : '',
 			id: props.location.pathname.split('/')[2],
+			isAuthor: props.location.state ? props.location.state.isAuthor : true,
 			saved: false,
 			showModal: false,
+			showErrorModal: false,
 			password: '',
 			tempPassword: '',
-			showErrorModal: false,
-			errorMessage: ''
+			errorMessage: '',
 		};
 		this.focus = () => this.editor.focus();
 	}
 
 	componentDidMount() {
-		this.socket = io('http://localhost:3000');
+		this.socket = io(process.env.BACKEND + '');
 		this.socket.emit('DOCUMENT_OPEN', this.state.id);
 		this.socket.on('CONTENT_UPDATE', (data) => {
-			console.log('GOT SOMETHING!!!')
 			this.setState({
 				title: data.title,
 				editorState: EditorState.createWithContent(convertFromRaw(JSON.parse(data.content)))
@@ -102,6 +102,11 @@ class TextEditor extends React.Component {
 		}));
 	}
 
+	setEditorState(newState) {
+		this.setState({
+			editorState: newState
+		})
+	}
 
 	isHighlighted(button) {
 		return this.state.editorState.getCurrentInlineStyle().has(button) ? 'highlighted' : ''
@@ -144,7 +149,7 @@ class TextEditor extends React.Component {
 	}
 
 	handleSave() {
-		axios.post('http://localhost:3000/documents/save', {
+		axios.post(process.env.BACKEND + '/documents/save', {
 			ID: this.state.id,
 			title: this.state.title,
 			password: this.state.password,
@@ -161,9 +166,9 @@ class TextEditor extends React.Component {
 					}), 1000)
 			})
 			.catch(error => {
-				console.log('Error saving document:', error.response.data.message);
+				// console.log('Error saving document:', error.response.data.message);
 				this.setState({
-					errorMessage: error.response.data.message
+					errorMessage: error.response ? error.response.data.message : error
 				})
 				this.openErrorModal()
 			})
@@ -193,7 +198,7 @@ class TextEditor extends React.Component {
 					<span id="title-label">Title</span>
 					<input type="text" id="title-input" onChange={this.handleTitleChange.bind(this)} value={this.state.title} />
 				</div>
-				<Toolbar editorState={this.state.editorState} documentID={this.state.id} onChangeFn={this.onChange.bind(this)} isHighlightedFn={(button) => (this.isHighlighted(button))} />
+				<Toolbar editorState={this.state.editorState} documentID={this.state.id} onChangeFn={this.onChange.bind(this)} isHighlightedFn={(button) => (this.isHighlighted(button))} setEditorState={this.setEditorState.bind(this)} />
 				<div onClick={this.focus}>
 					<Editor
 						customStyleMap={styleMap}
@@ -204,10 +209,10 @@ class TextEditor extends React.Component {
 						ref={(ref) => this.editor = ref} />
 				</div>
 				<div id="editor-bottom-bar">
-					<div id="save-message">
-						{this.state.saved ? <span>Changes Saved Successfully!</span> : <Link to="/portal"><button className="bottom-button">Go Back</button></Link>}
+					<div id="save-or-back" className={this.state.saved ? 'center' : ''}>
+						{this.state.saved ? <span>Changes Saved Successfully!</span> : <Link to="/portal"><button className="bottom-button left">Go Back</button></Link>}
 					</div>
-					<button className="bottom-button" onClick={this.openModal.bind(this)}>Password</button>
+					{this.state.isAuthor ? <button className="bottom-button" onClick={this.openModal.bind(this)}>Password</button> : ''}
 					<InputModal showModal={this.state.showModal} value={this.state.tempPassword} title="Password" type="password" save={this.savePassword.bind(this)} closeModal={this.closeModal.bind(this)} />
 					<button className="bottom-button" onClick={this.handleSave.bind(this)}>Save</button>
 				</div>
@@ -215,5 +220,31 @@ class TextEditor extends React.Component {
 		);
 	}
 }
+
+const generateDecorator = (highlightTerm) => {
+	const regex = new RegExp(highlightTerm, 'g');
+	return new CompositeDecorator([{
+		strategy: (contentBlock, callback) => {
+			if (highlightTerm !== '') {
+				findWithRegex(regex, contentBlock, callback);
+			}
+		},
+		component: SearchHighlight,
+	}])
+};
+
+const findWithRegex = (regex, contentBlock, callback) => {
+	const text = contentBlock.getText();
+	let matchArr, start, end;
+	while ((matchArr = regex.exec(text)) !== null) {
+		start = matchArr.index;
+		end = start + matchArr[0].length;
+		callback(start, end);
+	}
+};
+
+const SearchHighlight = (props) => (
+	<span className="search-and-replace-highlight">{props.children}</span>
+);
 
 export default TextEditor;

@@ -21,7 +21,7 @@ router.get('/documents', (req, res, next) => {
 			res.status(400).send('Error: ' + error);
 		} else {
 			res.status(200).json({
-				documents
+				documents: documents.map((doc) => Object.assign(doc.toObject(), { isAuthor: String(doc.owner) == String(req.user._id) }))
 			})
 		}
 	})
