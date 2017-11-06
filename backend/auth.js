@@ -6,7 +6,12 @@ var User = require('./models').User;
 module.exports = function (passport) {
 	// Add Passport-related auth routes here, to the router!
 	router.post('/register', function (req, res, next) {
-		if (req.body.username && req.body.password) {
+		if (!(req.body.username && req.body.password)) {
+			res.status(400).json({
+				success: false,
+				message: 'Some fields are empty.'
+			});
+		} else if (req.body.username && req.body.password) {
 			var newUser = new User({
 				username: req.body.username,
 				password: req.body.password
@@ -15,7 +20,7 @@ module.exports = function (passport) {
 				if (error) {
 					res.status(401).json({
 						success: false,
-						message: error.message
+						message: error.message.indexOf('duplicate key error index: text-editor.users.$username_1') !== -1 ? 'Username is taken.' : error.message
 					});
 				} else {
 					res.status(200).json({

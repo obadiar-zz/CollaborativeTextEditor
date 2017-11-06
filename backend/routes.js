@@ -21,13 +21,14 @@ router.get('/documents', (req, res, next) => {
 			res.status(400).send('Error: ' + error);
 		} else {
 			res.status(200).json({
-				documents
+				documents: documents.map((doc) => Object.assign(doc.toObject(), { isAuthor: String(doc.owner) == String(req.user._id) }))
 			})
 		}
 	})
 });
 
 router.post('/documents/save', (req, res, next) => {
+	console.log(req.body)
 	Document.findOne({ ID: req.body.ID }, (error, document) => {
 		if (error) {
 			res.status(400).json({
@@ -43,7 +44,7 @@ router.post('/documents/save', (req, res, next) => {
 				collaborators: [req.user._id],
 				passwordProtected: req.body.password ? true : false,
 			});
-			if (newDocument.passWordProtected) {
+			if (newDocument.passwordProtected) {
 				newDocument.password = req.body.password
 			}
 			newDocument.save((error => {
@@ -62,14 +63,13 @@ router.post('/documents/save', (req, res, next) => {
 			if (req.body.password) {
 				document.passwordProtected = true;
 				document.password = req.body.password
-			} else {
-				document.passwordProtected = false;
-				document.password = undefined;
 			}
 			document.save((error => {
 				if (error) {
-					res.status(400).send('Error: ' + error);
-					console.log('Error:', error);
+					res.status(400).json({
+						success: false,
+						message: error.message
+					});
 				} else {
 					res.status(200).send('Changes saved successfully!');
 				}

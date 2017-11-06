@@ -4,8 +4,10 @@ import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw } from 'dr
 import randomize from 'randomatic';
 import { Link } from 'react-router-dom'
 import axios from 'axios';
+import io from 'socket.io-client';
 
 import InputModal from './InputModal'
+import ErrorModal from './ErrorModal'
 import Toolbar from './Toolbar'
 import Logout from './Logout'
 
@@ -64,17 +66,46 @@ class TextEditor extends React.Component {
 			editorState: props.location.state ? EditorState.createWithContent(convertFromRaw(JSON.parse(props.location.state.content))) : EditorState.createEmpty(),
 			title: props.location.state ? props.location.state.title : '',
 			id: props.location.pathname.split('/')[2],
+			isAuthor: props.location.state ? props.location.state.isAuthor : true,
 			saved: false,
 			showModal: false,
+			showErrorModal: false,
 			password: '',
-			tempPassword: props.location.state ? props.location.state.password : '',
+			tempPassword: '',
+			errorMessage: '',
 		};
 		this.focus = () => this.editor.focus();
-		this.onChange = (editorState) => this.setState({ editorState });
 	}
 
-	printContent() {
-		console.log(this.state.editorState.getCurrentContent().getPlainText())
+	componentDidMount() {
+		this.socket = io(process.env.BACKEND + '');
+		this.socket.emit('DOCUMENT_OPEN', this.state.id);
+		this.socket.on('CONTENT_UPDATE', (data) => {
+			this.setState({
+				title: data.title,
+				editorState: EditorState.createWithContent(convertFromRaw(JSON.parse(data.content)))
+			})
+		})
+	}
+
+	componentWillUnmount() {
+		this.socket.emit('DOCUMENT_CLOSE', this.state.id);
+		this.socket.disconnect();
+	}
+
+	onChange(editorState) {
+		this.setState({
+			editorState
+		}, () => this.socket.emit('CONTENT_UPDATE', {
+			title: this.state.title,
+			content: JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()))
+		}));
+	}
+
+	setEditorState(newState) {
+		this.setState({
+			editorState: newState
+		})
 	}
 
 	isHighlighted(button) {
@@ -102,7 +133,10 @@ class TextEditor extends React.Component {
 	handleTitleChange(e) {
 		this.setState({
 			title: e.target.value
-		})
+		}, () => this.socket.emit('CONTENT_UPDATE', {
+			title: this.state.title,
+			content: JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()))
+		}));
 	}
 
 	handleKeyCommand(command, editorState) {
@@ -115,7 +149,7 @@ class TextEditor extends React.Component {
 	}
 
 	handleSave() {
-		axios.post('http://localhost:3000/documents/save', {
+		axios.post(process.env.BACKEND + '/documents/save', {
 			ID: this.state.id,
 			title: this.state.title,
 			password: this.state.password,
@@ -132,13 +166,30 @@ class TextEditor extends React.Component {
 					}), 1000)
 			})
 			.catch(error => {
-				console.log('Error saving document:', error.response.data.message);
+				// console.log('Error saving document:', error.response.data.message);
+				this.setState({
+					errorMessage: error.response ? error.response.data.message : error
+				})
+				this.openErrorModal()
 			})
+	}
+
+	openErrorModal() {
+		this.setState({
+			showErrorModal: true
+		})
+	}
+
+	closeErrorModal() {
+		this.setState({
+			showErrorModal: false
+		})
 	}
 
 	render() {
 		return (
 			<div id='editor-container'>
+				<ErrorModal showModal={this.state.showErrorModal} message={this.state.errorMessage} duration={2} closeModal={this.closeErrorModal.bind(this)} />
 				<Logout logout={() => this.props.history.push('/login')} />
 				<h1>
 					Text Editor
@@ -147,21 +198,21 @@ class TextEditor extends React.Component {
 					<span id="title-label">Title</span>
 					<input type="text" id="title-input" onChange={this.handleTitleChange.bind(this)} value={this.state.title} />
 				</div>
-				<Toolbar editorState={this.state.editorState} documentID={this.state.id} onChangeFn={this.onChange} isHighlightedFn={(button) => (this.isHighlighted(button))} />
+				<Toolbar editorState={this.state.editorState} documentID={this.state.id} onChangeFn={this.onChange.bind(this)} isHighlightedFn={(button) => (this.isHighlighted(button))} setEditorState={this.setEditorState.bind(this)} />
 				<div onClick={this.focus}>
 					<Editor
 						customStyleMap={styleMap}
 						blockStyleFn={myBlockStyleFn}
 						editorState={this.state.editorState}
 						handleKeyCommand={this.handleKeyCommand}
-						onChange={this.onChange}
+						onChange={this.onChange.bind(this)}
 						ref={(ref) => this.editor = ref} />
 				</div>
 				<div id="editor-bottom-bar">
-					<div id="save-message">
-						{this.state.saved ? <span>Changes Saved Successfully!</span> : <Link to="/portal"><button className="bottom-button">Go Back</button></Link>}
+					<div id="save-or-back" className={this.state.saved ? 'center' : ''}>
+						{this.state.saved ? <span>Changes Saved Successfully!</span> : <Link to="/portal"><button className="bottom-button left">Go Back</button></Link>}
 					</div>
-					<button className="bottom-button" onClick={this.openModal.bind(this)}>Password</button>
+					{this.state.isAuthor ? <button className="bottom-button" onClick={this.openModal.bind(this)}>Password</button> : ''}
 					<InputModal showModal={this.state.showModal} value={this.state.tempPassword} title="Password" type="password" save={this.savePassword.bind(this)} closeModal={this.closeModal.bind(this)} />
 					<button className="bottom-button" onClick={this.handleSave.bind(this)}>Save</button>
 				</div>
@@ -169,5 +220,31 @@ class TextEditor extends React.Component {
 		);
 	}
 }
+
+const generateDecorator = (highlightTerm) => {
+	const regex = new RegExp(highlightTerm, 'g');
+	return new CompositeDecorator([{
+		strategy: (contentBlock, callback) => {
+			if (highlightTerm !== '') {
+				findWithRegex(regex, contentBlock, callback);
+			}
+		},
+		component: SearchHighlight,
+	}])
+};
+
+const findWithRegex = (regex, contentBlock, callback) => {
+	const text = contentBlock.getText();
+	let matchArr, start, end;
+	while ((matchArr = regex.exec(text)) !== null) {
+		start = matchArr.index;
+		end = start + matchArr[0].length;
+		callback(start, end);
+	}
+};
+
+const SearchHighlight = (props) => (
+	<span className="search-and-replace-highlight">{props.children}</span>
+);
 
 export default TextEditor;

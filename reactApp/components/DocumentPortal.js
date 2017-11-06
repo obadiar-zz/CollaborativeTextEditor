@@ -4,8 +4,10 @@ import Document from './Document'
 import randomize from 'randomatic';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import io from 'socket.io-client';
 
 import InputModal from './InputModal';
+import ErrorModal from './ErrorModal'
 import Logout from './Logout'
 
 class DocumentPortal extends React.Component {
@@ -16,12 +18,14 @@ class DocumentPortal extends React.Component {
 			showIDModal: false,
 			showPasswordModal: false,
 			emptyMessage: '',
-			currentID: ''
+			currentID: '',
+			showErrorModal: false,
+			errorMessage: ''
 		}
 	}
 
 	getDocuments() {
-		axios.get('http://localhost:3000/documents')
+		axios.get(process.env.BACKEND + '/documents')
 			.then(resp => {
 				this.setState({
 					documents: resp.data.documents,
@@ -30,6 +34,10 @@ class DocumentPortal extends React.Component {
 			})
 			.catch(error => {
 				console.log('Error adding document', error.response.data.message)
+				this.setState({
+					errorMessage: error.response.data.message
+				})
+				this.openErrorModal();
 			})
 	}
 
@@ -53,13 +61,13 @@ class DocumentPortal extends React.Component {
 		this.setState({
 			currentID: value
 		})
-		axios.post('http://localhost:3000/documents/add', {
+		axios.post(process.env.BACKEND + '/documents/add', {
 			ID: value
 		})
 			.then(resp => {
 				if (resp.status === 200 && resp.data.success) {
+					this.getDocuments();
 					this.setState({
-						documents: [...this.state.documents, resp.data.document],
 						emptyMessage: '',
 						currentID: ''
 					}, () => this.closeIDModal())
@@ -70,7 +78,11 @@ class DocumentPortal extends React.Component {
 			})
 			.catch(error => {
 				console.log('Error adding document:', error.response.data.message);
-				this.closeIDModal()
+				this.setState({
+					errorMessage: error.response.data.message
+				})
+				this.openErrorModal();
+				this.closeIDModal();
 			})
 	}
 
@@ -87,14 +99,14 @@ class DocumentPortal extends React.Component {
 	}
 
 	savePassword(password) {
-		axios.post('http://localhost:3000/documents/add', {
+		axios.post(process.env.BACKEND + '/documents/add', {
 			ID: this.state.currentID,
 			password: password
 		})
 			.then(resp => {
 				if (resp.status === 200 && resp.data.success) {
+					this.getDocuments();
 					this.setState({
-						documents: [...this.state.documents, resp.data.document],
 						emptyMessage: ''
 					}, () => this.closePasswordModal())
 				}
@@ -106,15 +118,31 @@ class DocumentPortal extends React.Component {
 			.catch(error => {
 				console.log('Error adding document:', error.response.data.message);
 				this.setState({
-					currentID: ''
+					currentID: '',
+					errorMessage: error.response.data.message
 				})
+				this.openErrorModal()
 				this.closePasswordModal()
 			})
+	}
+
+
+	openErrorModal() {
+		this.setState({
+			showErrorModal: true
+		})
+	}
+
+	closeErrorModal() {
+		this.setState({
+			showErrorModal: false
+		})
 	}
 
 	render() {
 		return (
 			<div id="document-portal-container">
+				<ErrorModal showModal={this.state.showErrorModal} message={this.state.errorMessage} duration={2} closeModal={this.closeErrorModal.bind(this)} />
 				<Logout logout={() => this.props.history.push('/login')} />
 				<h1>
 					Documents Portal

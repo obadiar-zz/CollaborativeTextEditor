@@ -5,10 +5,12 @@ import { Button, Label, FormControl, FieldGroup, ButtonToolbar } from 'react-boo
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router';
 
+import ErrorModal from './ErrorModal';
+
 class RegistrationForm extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { username: '', password: '', regisered: false };
+		this.state = { username: '', password: '', showErrorModal: false, errorMessage: '' };
 
 		this.handleUsernameChange = this.handleUsernameChange.bind(this);
 		this.handlePasswordChange = this.handlePasswordChange.bind(this);
@@ -24,7 +26,7 @@ class RegistrationForm extends React.Component {
 	}
 
 	handleSubmit(event) {
-		axios.post('http://localhost:3000/register', {
+		axios.post(process.env.BACKEND + '/register', {
 			username: this.state.username,
 			password: this.state.password
 		})
@@ -36,13 +38,30 @@ class RegistrationForm extends React.Component {
 			})
 			.catch(error => {
 				console.log('Error registering:', error.response.data.message)
+				this.setState({
+					errorMessage: error.response.data.message
+				});
+				this.openErrorModal();
 			})
 		event.preventDefault();
+	}
+
+	openErrorModal() {
+		this.setState({
+			showErrorModal: true
+		})
+	}
+
+	closeErrorModal() {
+		this.setState({
+			showErrorModal: false
+		})
 	}
 
 	render() {
 		return (
 			<div id="register-page">
+				<ErrorModal showModal={this.state.showErrorModal} message={this.state.errorMessage} duration={2.5} closeModal={this.closeErrorModal.bind(this)} />
 				<h1>
 					Register
 				</h1>

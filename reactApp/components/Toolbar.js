@@ -1,11 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Editor, EditorState, RichUtils } from 'draft-js';
+import { Editor, EditorState, RichUtils, CompositeDecorator } from 'draft-js';
+import InputModal from './InputModal'
 
 
 class Toolbar extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {
+			showModal: false
+		}
 	}
 
 	_onBoldClick() {
@@ -46,6 +50,28 @@ class Toolbar extends React.Component {
 		this.props.onChangeFn(RichUtils.toggleBlockType(this.props.editorState, 'center'));
 	}
 
+	search(value) {
+		// console.log(this.props.editorState.getCurrentContent().getPlainText().indexOf(value) !== -1);
+		this.props.setEditorState(EditorState.set(this.props.editorState, { decorator: generateDecorator(value) }));
+	}
+
+	saveSearchTerm(value) {
+		this.search(value);
+		this.closeModal()
+	}
+
+	openModal() {
+		this.setState({
+			showModal: true
+		})
+	}
+
+	closeModal() {
+		this.setState({
+			showModal: false
+		})
+	}
+
 	render() {
 		return (
 			<div id='editor-toolbar'>
@@ -68,20 +94,50 @@ class Toolbar extends React.Component {
 					<option value="yellow">Yellow</option>
 				</select>
 				<button className={"toolbar-button " + (() => this.props.isHighlightedFn('left'))()} id="align-left-button" onClick={this._onAlignLeft.bind(this)}>
-					<img src="http:localhost:3000/icons/align-left.png" alt="" />
+					<img src={process.env.BACKEND + '/icons/align-left.png'} />
 				</button>
 				<button className={"toolbar-button " + (() => this.props.isHighlightedFn('center'))()} id="align-center-button" onClick={this._onAlignCenter.bind(this)}>
-					<img src="http:localhost:3000/icons/align-center.png" alt="" />
+					<img src={process.env.BACKEND + '/icons/align-center.png'} />
 				</button>
 				<button className={"toolbar-button " + (() => this.props.isHighlightedFn('right'))()} id="align-right-button" onClick={this._onAlignRight.bind(this)}>
-					<img src="http:localhost:3000/icons/align-right.png" alt="" />
+					<img src={process.env.BACKEND + '/icons/align-right.png'} />
+				</button>
+				<button className="toolbar-button" id="search-button" onClick={this.openModal.bind(this)}>
+					Search <img src={process.env.BACKEND + '/icons/magnifier.png'} />
 				</button>
 				<div id="document-id-container">
 					<div id="document-id"><span id="document-id-label">Shareable ID</span><span id="document-id-text">{this.props.documentID}</span></div>
 				</div>
+				<InputModal showModal={this.state.showModal} value="" title="Enter search term" type="text" save={this.saveSearchTerm.bind(this)} closeModal={this.closeModal.bind(this)} />
 			</div>
 		)
 	}
 };
+
+const generateDecorator = (highlightTerm) => {
+	const regex = new RegExp(highlightTerm, 'g');
+	return new CompositeDecorator([{
+		strategy: (contentBlock, callback) => {
+			if (highlightTerm !== '') {
+				findWithRegex(regex, contentBlock, callback);
+			}
+		},
+		component: SearchHighlight,
+	}])
+};
+
+const findWithRegex = (regex, contentBlock, callback) => {
+	const text = contentBlock.getText();
+	let matchArr, start, end;
+	while ((matchArr = regex.exec(text)) !== null) {
+		start = matchArr.index;
+		end = start + matchArr[0].length;
+		callback(start, end);
+	}
+};
+
+const SearchHighlight = (props) => (
+	<span className="search-and-replace-highlight">{props.children}</span>
+);
 
 export default Toolbar;

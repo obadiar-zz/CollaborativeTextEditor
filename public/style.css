@@ -2,12 +2,12 @@
 
 @font-face {
     font-family: newFont1;
-	src: url('http://localhost:3000/fonts/coolvetica.ttf');
+	src: url('./fonts/coolvetica.ttf');
 }
 
 @font-face {
     font-family: newFont2;
-	src: url('http://localhost:3000/fonts/airplanes.ttf');
+	src: url('./fonts/airplanes.ttf');
 }
 
 input, button, textarea, Button :focus {
@@ -75,6 +75,10 @@ input{
 	margin-bottom: 20px;
 }
 
+#login-form #form-buttons-bar, #register-form #form-buttons-bar{
+	justify-content: center;
+}
+
 #login-page span, #register-page span{
 	text-align: center;
 }
@@ -120,7 +124,7 @@ input{
 }
 
 .document-li{
-	font-size: 20px;
+	font-size: 18px;
 	letter-spacing: 1px;
 	height: 60px;
 	opacity: 0.9;
@@ -130,7 +134,7 @@ input{
 	padding: 5px 12px;
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
+	/* justify-content: space-between; */
 	align-items: center;
 }
 
@@ -140,6 +144,19 @@ input{
 	opacity: 1.0;
 }
 
+.mine{
+	background-color: #00a6ff;
+}
+
+.document-li-id{
+	flex: 2;
+	font-size: 14px;
+	font-family: Courier New, Courier, monospace;
+	text-align: center;
+	letter-spacing: 2px;
+	border: 0;
+}
+
 .document-icon{
 	flex: 1;
 	display: flex;
@@ -147,11 +164,16 @@ input{
 	align-items: center;
 }
 
+.document-icon.flex-end{
+	justify-content: flex-end;
+}
+
 .document-delete{
 	flex: 1;
 	display: flex;
-	justify-content: center;
+	justify-content: flex-end;
 	align-items: center;
+	padding: 0 10px;
 }
 
 .document-delete:hover{
@@ -164,13 +186,12 @@ input{
 }
 
 .document-li span{
-	flex: 16;
-	padding-left: 6px;
+	flex: 8;
 	color: white;
-	font-family: Arial, Helvetica, sans-serif;
 }
 
 /* MARK: TextEditor CSS */
+
 #document-title{
 	display: flex;
 	margin-bottom: 10px;
@@ -239,14 +260,23 @@ input{
 	font-family: 'Times New Roman', Times, serif;
 }
 
+#search-button{
+	width: auto;
+}
+
+.toolbar-button img{
+	height: 16px;
+	width: 16px;
+}
+
 .DraftEditor-root {
 	flex: 1;
 	background:#1376ad;
 	color: white;
 	border-radius: 6px;
 	margin: 10px 0px;
-	height: 200px;
-	max-height: 200px;
+	min-height: 300px;
+	max-height: 50vh;
 	margin: 10px 0px;
 	overflow: auto;
 	cursor: text;
@@ -259,13 +289,10 @@ input{
 	flex: 2;
 	display: flex;
 	justify-content: flex-end;
-	align-items: center;
 }
 
-#save-message{
-	padding: 0 10px;
-	flex: 1;
-	text-align: center;
+#save-or-back{
+	flex: 6;
 	text-shadow: 2px 2px #1376ad;
 	color: white;
 	letter-spacing: 1px;
@@ -273,17 +300,33 @@ input{
 	font-size: 18px;
 }
 
+#save-or-back.center{
+	text-align: center;
+}
+
+.search-and-replace-highlight{
+	background-color: rgb(255, 255, 0);
+	color: black;
+}
+
 .bottom-button{
 	background: #1376ad;
-	min-width: 160px;
+	min-width: 140px;
 	color: white;
 	font-size: 14px;
 	height: 40px;
 	border: 0;
 	border-radius: 6px;
 	white-space: nowrap;
-	margin-left: 10px;
+	margin-left: 10px
 }
+
+.bottom-button.left{
+	margin-left: 0;
+	margin-right: 10px;
+}
+
+/* MARK: Block CSS */
 
 .block-align-right{
 	text-align: right;
@@ -296,6 +339,8 @@ input{
 .block-align-left{
 	text-align: left;
 }
+
+/* MARK: Text Editor's DocumentID CSS */
 
 #document-id-container{
 	flex: 1;
@@ -312,6 +357,7 @@ input{
 	height: 28px;
 	color: white;
 	align-items: center;
+	white-space: nowrap; 
 }
 
 #document-id-label{
@@ -325,46 +371,58 @@ input{
 	border-radius: 6px 0 0 6px;
 }
 
-/* MARK: MODAL CSS */
+/* MARK: Modal CSS */
 
- .modal-dialog {
+.modal{
+	background: rgba(0, 0, 0, 0.7);
+}
+
+.modal-dialog {
 	position: absolute;
-	top: 40%;
 	left: 50%;
 	transform: translate(-50%, -50%) !important;
+	display: flex;
+	justify-content: center;
 }
 
 .modal-content{
 	border: 0;
 	border-radius: 0;
-	background: transparent;
+	box-shadow: none;
 }
 
-.modal-footer{
+/* MARK: Input Modal CSS */
+
+#input-modal .modal-dialog{
+	top: 40%;
+}
+
+#input-modal .modal-content{
+	background: transparent;
+	box-shadow: 0;
+}
+
+#input-modal .modal-footer{
 	background: transparent;
 	margin-top: 100px;
 }
 
-#modal{
-	background: rgba(0, 0, 0, 0.9);
-}
-
-
-#modal-body{
+#input-modal-body{
 	padding: 0;
 	height: 80px;
 }
 
-#modal-input{
+#input-modal-input{
 	border: 0;
 	height: 100%;
 	width: 100%;
 	padding: 0 20px;
-	font-size: 40px;
+	font-size: 50px;
 	font-family: monospace;
+	text-align: center;
 }
 
-#modal-footer{
+#input-modal-footer{
 	margin-top: 14px;
 	display: flex;
 	justify-content: flex-end;
@@ -373,6 +431,32 @@ input{
 .modal-button{
 	width: 20%;
 	margin-left: 3%;
+}
+
+/* MARK: Error Modal CSS */
+
+#error-modal{
+	color: white;
+}
+
+#error-modal .modal-dialog{
+	top: 20%;
+}
+
+#error-modal-title{
+	font-size: 14px;
+	padding: 6px 0px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.521);
+}
+
+#error-modal .modal-body{
+	padding: 5px;
+}
+
+#error-modal .modal-content{
+	background: #fd2323;
+	padding: 4px 10px;
+	width: 70%;
 }
 
 /* MARK: Logout button CSS */
